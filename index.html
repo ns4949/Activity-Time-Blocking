@@ -83,40 +83,37 @@ document.addEventListener('DOMContentLoaded', function() {
     },
 
     events: [
-      {
-        title: 'Exam 1',
-        start: '2026-02-25T20:30:00',
-        end: '2026-02-25T22:30:00',
-        backgroundColor: 'red',
-        borderColor: 'red'
-      },
-      {
-        title: 'Exam 2',
-        start: '2026-02-27T11:30:00',
-        end: '2026-02-27T13:30:00',
-        backgroundColor: 'red',
-        borderColor: 'red'
-      }
-    ],
-
-    select: function(info) {
-      var title = prompt("Enter event name:");
-      if (title) {
-        calendar.addEvent({
-          title: title,
-          start: info.start,
-          end: info.end,
-          allDay: false
-        });
-      }
-      calendar.unselect();
-    },
+  {
+    title: 'Exam 1',
+    start: '2026-02-25T20:30:00',
+    end: '2026-02-25T22:30:00',
+    backgroundColor: 'red',
+    borderColor: 'red',
+    editable: false,
+    durationEditable: false,
+    startEditable: false
+  },
+  {
+    title: 'Exam 2',
+    start: '2026-02-27T11:30:00',
+    end: '2026-02-27T13:30:00',
+    backgroundColor: 'red',
+    borderColor: 'red',
+    editable: false,
+    durationEditable: false,
+    startEditable: false
+  }
+],
 
     eventClick: function(info) {
-      if (confirm("Delete this event?")) {
-        info.event.remove();
-      }
-    }
+  if (info.event.title.includes("Exam")) {
+    return; // Do nothing for exams
+  }
+
+  if (confirm("Delete this event?")) {
+    info.event.remove();
+  }
+}
 
   });
 
