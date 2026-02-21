@@ -104,7 +104,18 @@ document.addEventListener('DOMContentLoaded', function() {
     startEditable: false
   }
 ],
-
+select: function(info) {
+  var title = prompt("Enter event name:");
+  if (title) {
+    calendar.addEvent({
+      title: title,
+      start: info.start,
+      end: info.end,
+      allDay: false
+    });
+  }
+  calendar.unselect();
+},
     eventClick: function(info) {
   if (info.event.title.includes("Exam")) {
     return; // Do nothing for exams
