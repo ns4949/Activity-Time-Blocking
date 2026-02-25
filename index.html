@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Weekly Time Blocking</title>
@@ -39,7 +40,6 @@ h2 {
 }
 </style>
 </head>
-
 <body>
 
 <h2>Weekly Time Blocking Activity</h2>
@@ -70,7 +70,7 @@ Situationship wants to meet up.
 background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;">
 
   <div style="background:white; padding:20px; border-radius:10px; width:90%; max-width:400px;">
-    <h3>Add University Class</h3>
+    <h3>Add Class</h3>
 
     <label>Class Name:</label><br>
     <input type="text" id="className" style="width:100%; margin-bottom:10px;"><br>
@@ -155,16 +155,27 @@ document.addEventListener('DOMContentLoaded', function() {
 select: function(info) {
   var title = prompt("Enter event name:");
   if (title) {
-    calendar.addEvent({
-      title: title,
-      start: info.start,
-      end: info.end,
-      allDay: false
-    });
+  calendar.addEvent({
+  title: title,
+  start: info.start,
+  end: info.end,
+  allDay: false,
+  backgroundColor: '#c6f5c6',
+  borderColor: '#c6f5c6'
+});
+
+checkCompletion(); // 👈 add this line
   }
   calendar.unselect();
 },
-    eventClick: function(info) {
+    eventAdd: function() {
+  checkCompletion();
+},
+
+eventChange: function() {
+  checkCompletion();
+},
+eventClick: function(info) {
   if (info.event.title.includes("Exam")) {
     return; // Do nothing for exams
   }
@@ -177,6 +188,50 @@ select: function(info) {
   });
 
   calendar.render();
+  function checkCompletion() {
+
+  const events = calendar.getEvents();
+
+  let hasBirthday = false;
+  let menteeCount = 0;
+  let totalHomeworkMinutes = 0;
+
+  events.forEach(event => {
+
+    const title = event.title.toLowerCase();
+
+    // Birthday check
+    if (title.includes("birthday")) {
+      hasBirthday = true;
+    }
+
+    // Count mentee meetings
+    if (title.includes("mentee")) {
+      menteeCount++;
+    }
+
+    // Calculate total homework time
+    if (title.includes("homework")) {
+      const duration = (event.end - event.start) / (1000 * 60); // minutes
+      totalHomeworkMinutes += duration;
+    }
+
+  });
+
+  const hasEnoughHomework = totalHomeworkMinutes >= 360; // 6 hours = 360 minutes
+  const hasEnoughMentees = menteeCount >= 2;
+
+  if (hasBirthday && hasEnoughMentees && hasEnoughHomework) {
+    launchConfetti();
+  }
+}
+  function launchConfetti() {
+  confetti({
+    particleCount: 200,
+    spread: 100,
+    origin: { y: 0.6 }
+  });
+}
   document.getElementById("addClassBtn").onclick = function() {
   document.getElementById("classModal").style.display = "flex";
 };
@@ -208,10 +263,12 @@ window.submitClass = function() {
     const dateStr = baseDate.toISOString().split('T')[0];
 
     calendar.addEvent({
-      title: name,
-      start: dateStr + "T" + startTime,
-      end: dateStr + "T" + endTime
-    });
+  title: name,
+  start: dateStr + "T" + startTime,
+  end: dateStr + "T" + endTime,
+  backgroundColor: '#b3d9ff',
+  borderColor: '#b3d9ff'
+});
 
   });
 
