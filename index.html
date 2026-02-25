@@ -52,7 +52,48 @@ Invited to friend's birthday party on Friday night;
 4 hours of Homework due Saturday night; 
 Situationship wants to meet up.
 </div>
+  
+<div style="text-align:center; margin-bottom:15px;">
+  <button id="addClassBtn" style="
+    padding:10px 18px;
+    font-size:16px;
+    border-radius:8px;
+    border:none;
+    background:#2d6cdf;
+    color:white;
+    cursor:pointer;">
+    + Add University Class
+  </button>
+</div>
+  
+  <div id="classModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;">
 
+  <div style="background:white; padding:20px; border-radius:10px; width:90%; max-width:400px;">
+    <h3>Add University Class</h3>
+
+    <label>Class Name:</label><br>
+    <input type="text" id="className" style="width:100%; margin-bottom:10px;"><br>
+
+    <label>Days:</label><br>
+    <label><input type="checkbox" value="0"> Sun</label>
+    <label><input type="checkbox" value="1"> Mon</label>
+    <label><input type="checkbox" value="2"> Tue</label>
+    <label><input type="checkbox" value="3"> Wed</label>
+    <label><input type="checkbox" value="4"> Thu</label>
+    <label><input type="checkbox" value="5"> Fri</label>
+    <label><input type="checkbox" value="6"> Sat</label><br><br>
+
+    <label>Start Time:</label><br>
+    <input type="time" id="startTime"><br><br>
+
+    <label>End Time:</label><br>
+    <input type="time" id="endTime"><br><br>
+
+    <button onclick="submitClass()">Add Class</button>
+    <button onclick="closeModal()">Cancel</button>
+  </div>
+</div>
 <div id="calendar"></div>
 
 <script>
@@ -64,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initialView: 'timeGridWeek',
     firstDay: 0,
-    initialDate: '2026-02-22',
+    initialDate: '2026-03-29',
     slotMinTime: "06:00:00",
     slotMaxTime: "23:59:00",
     slotDuration: "00:30:00",
@@ -136,6 +177,50 @@ select: function(info) {
   });
 
   calendar.render();
+  document.getElementById("addClassBtn").onclick = function() {
+  document.getElementById("classModal").style.display = "flex";
+};
+
+function closeModal() {
+  document.getElementById("classModal").style.display = "none";
+}
+
+window.submitClass = function() {
+
+  const name = document.getElementById("className").value;
+  const startTime = document.getElementById("startTime").value;
+  const endTime = document.getElementById("endTime").value;
+
+  if (!name || !startTime || !endTime) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  const checkboxes = document.querySelectorAll('#classModal input[type="checkbox"]:checked');
+
+  checkboxes.forEach(box => {
+
+    const dayOffset = parseInt(box.value);
+
+    const baseDate = new Date('2026-03-29');
+    baseDate.setDate(baseDate.getDate() + dayOffset);
+
+    const dateStr = baseDate.toISOString().split('T')[0];
+
+    calendar.addEvent({
+      title: name,
+      start: dateStr + "T" + startTime,
+      end: dateStr + "T" + endTime
+    });
+
+  });
+
+  closeModal();
+
+  document.getElementById("className").value = "";
+  document.getElementById("startTime").value = "";
+  document.getElementById("endTime").value = "";
+};
 });
 </script>
 </body>
