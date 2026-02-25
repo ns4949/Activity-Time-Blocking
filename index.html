@@ -195,26 +195,65 @@ eventClick: function(info) {
   let hasBirthday = false;
   let menteeCount = 0;
   let totalHomeworkMinutes = 0;
+  let totalStudyMinutes = 0;
+  let hasSituationship = false;
 
   events.forEach(event => {
 
     const title = event.title.toLowerCase();
 
     // Birthday check
-    if (title.includes("birthday")) {
+    if (
+      title.includes("birthday") ||
+      title.includes("bday") ||
+      title.includes("b-day") ||
+      title.includes("party")
+    ) {
       hasBirthday = true;
     }
 
-    // Count mentee meetings
+    // Mentee meetings
     if (title.includes("mentee")) {
       menteeCount++;
     }
 
-    // Calculate total homework time
-    if (title.includes("homework")) {
-      const duration = (event.end - event.start) / (1000 * 60); // minutes
+    // Homework (6 hours minimum)
+    if (title.includes("homework") || title.includes("hw")) {
+      const duration = (event.end - event.start) / (1000 * 60);
       totalHomeworkMinutes += duration;
     }
+
+    // Study time (10 hours minimum)
+    if (title.includes("study")) {
+      const duration = (event.end - event.start) / (1000 * 60);
+      totalStudyMinutes += duration;
+    }
+
+    // Situationship requirement
+    if (
+      title.includes("situationship") ||
+      title.includes("sneaky link") ||
+      title.includes("link")
+    ) {
+      hasSituationship = true;
+    }
+
+  });
+
+  const hasEnoughHomework = totalHomeworkMinutes >= 360; // 6 hours
+  const hasEnoughStudy = totalStudyMinutes >= 600; // 10 hours
+  const hasEnoughMentees = menteeCount >= 2;
+
+  if (
+    hasBirthday &&
+    hasEnoughMentees &&
+    hasEnoughHomework &&
+    hasEnoughStudy &&
+    hasSituationship
+  ) {
+    launchConfetti();
+  }
+}
 
   });
 
