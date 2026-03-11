@@ -1,323 +1,357 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
 <title>Weekly Time Blocking</title>
 
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 <style>
-  html, body {
-  overscroll-behavior: contain;
-  touch-action: manipulation;
-}
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
+
+html,body{
+overscroll-behavior:contain;
+touch-action:manipulation;
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 10px;
+body{
+font-family:Arial;
+margin:20px;
 }
 
-.instructions {
-  max-width: 1000px;
-  margin: 0 auto 20px auto;
-  padding: 15px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  font-size: 14px;
-  line-height: 1.6;
+h2{
+text-align:center;
+margin-bottom:10px;
 }
 
-#calendar {
-  max-width: 1100px;
-  margin: 0 auto;
+.instructions{
+max-width:1000px;
+margin:0 auto 20px auto;
+padding:15px;
+background:#f5f5f5;
+border-radius:8px;
+font-size:14px;
+line-height:1.6;
 }
+
+#calendar{
+max-width:1100px;
+margin:0 auto;
+}
+
+button{
+cursor:pointer;
+}
+
 </style>
 </head>
+
 <body>
 
 <h2>Weekly Time Blocking Activity</h2>
 
 <div class="instructions">
+
 <strong>You must use your current schedule & involvements and then incorporate the following:</strong><br><br>
-Reports due this Friday AND you still need to schedule individual meetings with your mentees; 
-2 exams — one Wednesday night, one Friday morning (you ideally need to study for 10 hours); 
-Invited to friend's birthday party on Friday night at 8:20 PM with sign reveal at 9:30 PM; 
-6 hours of Homework due Saturday night; 
+
+Reports due this Friday AND you still need to schedule individual meetings with your mentees.<br>
+2 exams — one Wednesday night, one Friday morning (you ideally need to study for 10 hours).<br>
+Invited to friend's birthday party on Friday night at 8:20 PM with sign reveal at 9:30 PM.<br>
+6 hours of Homework due Saturday night.<br>
 Situationship wants to meet up.
+
 </div>
-  
-<div style="text-align:center; margin-bottom:15px;">
-  <button id="addClassBtn" style="
-    padding:10px 18px;
-    font-size:16px;
-    border-radius:8px;
-    border:none;
-    background:#2d6cdf;
-    color:white;
-    cursor:pointer;">
-    + Add Class
-  </button>
+
+<div style="text-align:center;margin-bottom:15px;">
+
+<button id="addClassBtn" style="
+padding:10px 18px;
+font-size:16px;
+border-radius:8px;
+border:none;
+background:#2d6cdf;
+color:white;">
++ Add Class
+</button>
+
 </div>
-  
-  <div id="classModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;">
 
-  <div style="background:white; padding:20px; border-radius:10px; width:90%; max-width:400px;">
-    <h3>Add Class</h3>
+<div id="classModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:1000;">
 
-    <label>Class Name:</label><br>
-    <input type="text" id="className" style="width:100%; margin-bottom:10px;"><br>
+<div style="background:white;padding:20px;border-radius:10px;width:90%;max-width:400px;">
 
-    <label>Days:</label><br>
-    <label><input type="checkbox" value="0"> Sun</label>
-    <label><input type="checkbox" value="1"> Mon</label>
-    <label><input type="checkbox" value="2"> Tue</label>
-    <label><input type="checkbox" value="3"> Wed</label>
-    <label><input type="checkbox" value="4"> Thu</label>
-    <label><input type="checkbox" value="5"> Fri</label>
-    <label><input type="checkbox" value="6"> Sat</label><br><br>
+<h3>Add Class</h3>
 
-    <label>Start Time:</label><br>
-    <input type="time" id="startTime"><br><br>
+<label>Class Name</label><br>
+<input type="text" id="className" style="width:100%;margin-bottom:10px;"><br>
 
-    <label>End Time:</label><br>
-    <input type="time" id="endTime"><br><br>
+<label>Days</label><br>
 
-    <button onclick="submitClass()">Add Class</button>
-    <button onclick="closeModal()">Cancel</button>
-  </div>
+<label><input type="checkbox" value="0"> Sun</label>
+<label><input type="checkbox" value="1"> Mon</label>
+<label><input type="checkbox" value="2"> Tue</label>
+<label><input type="checkbox" value="3"> Wed</label>
+<label><input type="checkbox" value="4"> Thu</label>
+<label><input type="checkbox" value="5"> Fri</label>
+<label><input type="checkbox" value="6"> Sat</label>
+
+<br><br>
+
+<label>Start Time</label><br>
+<input type="time" id="startTime"><br><br>
+
+<label>End Time</label><br>
+<input type="time" id="endTime"><br><br>
+
+<button onclick="submitClass()">Add Class</button>
+<button onclick="closeModal()">Cancel</button>
+
 </div>
+</div>
+
 <div id="calendar"></div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
 
-  var calendarEl = document.getElementById('calendar');
+let confettiTriggered=false;
 
-  var calendar = new FullCalendar.Calendar(calendarEl, {
+document.addEventListener('DOMContentLoaded',function(){
 
-    initialView: 'timeGridWeek',
-    firstDay: 0,
-    initialDate: '2026-03-29',
-    slotMinTime: "06:00:00",
-    slotMaxTime: "23:59:00",
-    slotDuration: "00:30:00",
-    allDaySlot: false,
-    height: "auto",
+var calendarEl=document.getElementById('calendar');
 
-    selectable: true,
-    editable: true,
-    selectMirror: true,
+window.calendar=new FullCalendar.Calendar(calendarEl,{
 
-    longPressDelay: 300,
-    selectLongPressDelay: 300,
-    eventLongPressDelay: 300,
-    eventDragMinDistance: 5,
-    selectMinDistance: 5,
-    dragScroll: true,
-   
+initialView:'timeGridWeek',
+firstDay:0,
+initialDate:'2026-03-29',
 
-    headerToolbar: {
-      left: '',
-      center: 'title',
-      right: ''
-    },
+slotMinTime:"06:00:00",
+slotMaxTime:"23:59:00",
+slotDuration:"00:30:00",
 
-    events: [
-  {
-    title: 'Exam 1',
-    start: '2026-04-01T20:30:00',
-    end: '2026-04-01T22:30:00',
-    backgroundColor: 'red',
-    borderColor: 'red',
-    editable: false,
-    durationEditable: false,
-    startEditable: false
-  },
-  {
-    title: 'Exam 2',
-    start: '2026-04-03T11:30:00',
-    end: '2026-04-03T13:30:00',
-    backgroundColor: 'red',
-    borderColor: 'red',
-    editable: false,
-    durationEditable: false,
-    startEditable: false
-  }
+allDaySlot:false,
+height:"auto",
+
+selectable:true,
+editable:true,
+selectMirror:true,
+
+longPressDelay:300,
+selectLongPressDelay:300,
+eventLongPressDelay:300,
+
+eventDragMinDistance:5,
+selectMinDistance:5,
+
+dragScroll:true,
+
+headerToolbar:{
+left:'',
+center:'title',
+right:''
+},
+
+events:[
+
+{
+title:'Exam 1',
+start:'2026-04-01T20:30:00',
+end:'2026-04-01T22:30:00',
+backgroundColor:'red',
+borderColor:'red',
+editable:false,
+durationEditable:false,
+startEditable:false
+},
+
+{
+title:'Exam 2',
+start:'2026-04-03T11:30:00',
+end:'2026-04-03T13:30:00',
+backgroundColor:'red',
+borderColor:'red',
+editable:false,
+durationEditable:false,
+startEditable:false
+}
+
 ],
-select: function(info) {
-  var title = prompt("Enter event name:");
-  if (title) {
-  calendar.addEvent({
-  title: title,
-  start: info.start,
-  end: info.end,
-  allDay: false,
-  backgroundColor: '#8ECAE6',
-  borderColor: '#8ECAE6'
+
+select:function(info){
+
+var title=prompt("Enter event name:");
+
+if(title){
+
+calendar.addEvent({
+
+title:title,
+start:info.start,
+end:info.end,
+allDay:false,
+
+backgroundColor:'#A7C957',
+borderColor:'#A7C957'
+
 });
 
-checkCompletion(); // 👈 add this line
-  }
-  calendar.unselect();
+checkCompletion();
+
+}
+
+calendar.unselect();
+
 },
-    eventAdd: function() {
-  checkCompletion();
-},
 
-eventChange: function() {
-  checkCompletion();
-},
-eventClick: function(info) {
-  if (info.event.title.includes("Exam")) {
-    return; // Do nothing for exams
-  }
+eventAdd:function(){checkCompletion();},
+eventChange:function(){checkCompletion();},
 
-  if (confirm("Delete this event?")) {
-    info.event.remove();
-  }
+eventClick:function(info){
+
+if(info.event.title.includes("Exam")){return;}
+
+if(confirm("Delete this event")){
+info.event.remove();
 }
 
-  });
-
-  calendar.render();
-  function checkCompletion() {
-
-  const events = calendar.getEvents();
-
-  let hasBirthday = false;
-  let menteeCount = 0;
-  let totalHomeworkMinutes = 0;
-  let totalStudyMinutes = 0;
-  let hasSituationship = false;
-
-  events.forEach(event => {
-
-    const title = event.title.toLowerCase();
-
-    // Birthday check
-    if (
-      title.includes("birthday") ||
-      title.includes("bday") ||
-      title.includes("b-day") ||
-      title.includes("party")
-    ) {
-      hasBirthday = true;
-    }
-
-    // Mentee meetings
-    if (title.includes("mentee")) {
-      menteeCount++;
-    }
-
-    // Homework (6 hours minimum)
-    if (title.includes("homework") || title.includes("hw")) {
-      const duration = (event.end - event.start) / (1000 * 60);
-      totalHomeworkMinutes += duration;
-    }
-
-    // Study time (10 hours minimum)
-    if (title.includes("study")) {
-      const duration = (event.end - event.start) / (1000 * 60);
-      totalStudyMinutes += duration;
-    }
-
-    // Situationship requirement
-    if (
-      title.includes("situationship") ||
-      title.includes("sneaky link") ||
-      title.includes("link")
-    ) {
-      hasSituationship = true;
-    }
-
-  });
-
-  const hasEnoughHomework = totalHomeworkMinutes >= 360; // 6 hours
-  const hasEnoughStudy = totalStudyMinutes >= 600; // 10 hours
-  const hasEnoughMentees = menteeCount >= 2;
-
-  if (
-    hasBirthday &&
-    hasEnoughMentees &&
-    hasEnoughHomework &&
-    hasEnoughStudy &&
-    hasSituationship
-  ) {
-    launchConfetti();
-  }
 }
 
-  });
+});
 
-  const hasEnoughHomework = totalHomeworkMinutes >= 360; // 6 hours = 360 minutes
-  const hasEnoughMentees = menteeCount >= 2;
+calendar.render();
 
-  if (hasBirthday && hasEnoughMentees && hasEnoughHomework) {
-    launchConfetti();
-  }
+});
+
+function checkCompletion(){
+
+const events=calendar.getEvents();
+
+let hasBirthday=false;
+let menteeCount=0;
+let totalHomeworkMinutes=0;
+let totalStudyMinutes=0;
+let hasSituationship=false;
+
+events.forEach(event=>{
+
+const title=event.title.toLowerCase();
+
+if(
+title.includes("birthday")||
+title.includes("bday")||
+title.includes("b-day")||
+title.includes("party")
+){
+hasBirthday=true;
 }
-  function launchConfetti() {
-  confetti({
-    particleCount: 200,
-    spread: 100,
-    origin: { y: 0.6 }
-  });
+
+if(title.includes("mentee")){
+menteeCount++;
 }
-  document.getElementById("addClassBtn").onclick = function() {
-  document.getElementById("classModal").style.display = "flex";
+
+if(title.includes("homework")||title.includes("hw")){
+const duration=(event.end-event.start)/(1000*60);
+totalHomeworkMinutes+=duration;
+}
+
+if(title.includes("study")||title.includes("studying")){
+const duration=(event.end-event.start)/(1000*60);
+totalStudyMinutes+=duration;
+}
+
+if(
+title.includes("situationship")||
+title.includes("sneaky link")||
+title.includes("link")
+){
+hasSituationship=true;
+}
+
+});
+
+const hasEnoughHomework=totalHomeworkMinutes>=360;
+const hasEnoughStudy=totalStudyMinutes>=600;
+const hasEnoughMentees=menteeCount>=2;
+
+if(
+hasBirthday &&
+hasEnoughHomework &&
+hasEnoughStudy &&
+hasEnoughMentees &&
+hasSituationship &&
+!confettiTriggered
+){
+
+confettiTriggered=true;
+
+confetti({
+particleCount:200,
+spread:100,
+origin:{y:0.6}
+});
+
+}
+
+}
+
+document.getElementById("addClassBtn").onclick=function(){
+document.getElementById("classModal").style.display="flex";
 };
 
-function closeModal() {
-  document.getElementById("classModal").style.display = "none";
+function closeModal(){
+document.getElementById("classModal").style.display="none";
 }
 
-window.submitClass = function() {
+function submitClass(){
 
-  const name = document.getElementById("className").value;
-  const startTime = document.getElementById("startTime").value;
-  const endTime = document.getElementById("endTime").value;
+const name=document.getElementById("className").value;
+const startTime=document.getElementById("startTime").value;
+const endTime=document.getElementById("endTime").value;
 
-  if (!name || !startTime || !endTime) {
-    alert("Please fill in all fields.");
-    return;
-  }
+if(!name||!startTime||!endTime){
+alert("Please fill in all fields.");
+return;
+}
 
-  const checkboxes = document.querySelectorAll('#classModal input[type="checkbox"]:checked');
+const checkboxes=document.querySelectorAll('#classModal input[type="checkbox"]:checked');
 
-  checkboxes.forEach(box => {
+checkboxes.forEach(box=>{
 
-    const dayOffset = parseInt(box.value);
+const dayOffset=parseInt(box.value);
 
-    const baseDate = new Date('2026-03-29');
-    baseDate.setDate(baseDate.getDate() + dayOffset);
+const baseDate=new Date('2026-03-29');
+baseDate.setDate(baseDate.getDate()+dayOffset);
 
-    const dateStr = baseDate.toISOString().split('T')[0];
+const dateStr=baseDate.toISOString().split('T')[0];
 
-    calendar.addEvent({
-  title: name,
-  start: dateStr + "T" + startTime,
-  end: dateStr + "T" + endTime,
-  backgroundColor: '#A7C957',
-  borderColor: '#A7C957'
+calendar.addEvent({
+
+title:name,
+start:dateStr+"T"+startTime,
+end:dateStr+"T"+endTime,
+
+backgroundColor:'#8ECAE6',
+borderColor:'#8ECAE6'
+
 });
 
-  });
-
-  closeModal();
-
-  document.getElementById("className").value = "";
-  document.getElementById("startTime").value = "";
-  document.getElementById("endTime").value = "";
-};
 });
+
+closeModal();
+
+document.getElementById("className").value="";
+document.getElementById("startTime").value="";
+document.getElementById("endTime").value="";
+
+}
+
 </script>
+
 </body>
 </html>
