@@ -64,24 +64,11 @@ Situationship wants to meet up.
 
 <div style="text-align:center;margin-bottom:15px;">
 
-<button id="addClassBtn" style="
-padding:10px 18px;
-font-size:16px;
-border-radius:8px;
-border:none;
-background:#2d6cdf;
-color:white;">
+<button id="addClassBtn" style="padding:10px 18px;font-size:16px;border-radius:8px;border:none;background:#2d6cdf;color:white;">
 + Add Class
 </button>
 
-<button id="addEventBtn" style="
-padding:10px 18px;
-font-size:16px;
-border-radius:8px;
-border:none;
-background:#52b788;
-color:white;
-margin-left:10px;">
+<button id="addEventBtn" style="padding:10px 18px;font-size:16px;border-radius:8px;border:none;background:#52b788;color:white;margin-left:10px;">
 + Add Event
 </button>
 
@@ -149,50 +136,48 @@ background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:100
 
 <script>
 
-// TIME OPTIONS FROM YOUR SCHEDULE
-const timeOptions = [
-"07:25","08:15",
-"08:30","09:20",
-"09:35","10:25",
-"10:40","11:30",
-"11:45","12:35",
-"12:50","13:40",
-"13:55","14:45",
-"15:00","15:50",
-"16:05","16:55",
-"17:10","18:00",
-"18:15","19:05",
-"19:20","20:10",
-"20:20","21:10",
-"21:20","22:10"
+// SEPARATE TIME BANKS
+const startTimes = [
+"07:25","08:30","09:35","10:40","11:45",
+"12:50","13:55","15:00","16:05","17:10",
+"18:15","19:20","20:20","21:20"
 ];
 
-function populateDropdowns() {
-const selects = [
-document.getElementById("startTime"),
-document.getElementById("endTime"),
-document.getElementById("eventStart"),
-document.getElementById("eventEnd")
+const endTimes = [
+"08:15","09:20","10:25","11:30","12:35",
+"13:40","14:45","15:50","16:55","18:00",
+"19:05","20:10","21:10","22:10"
 ];
 
-selects.forEach(select => {
-if (!select) return;
-select.innerHTML = "";
-
-timeOptions.forEach(time => {
-let option = document.createElement("option");
-
+// FORMAT TIME
+function formatTime(time){
 let [h,m] = time.split(":");
 let hour = parseInt(h);
 let ampm = hour >= 12 ? "PM" : "AM";
 hour = hour % 12 || 12;
+return `${hour}:${m} ${ampm}`;
+}
 
+// FILL DROPDOWN
+function fillSelect(select, times){
+if (!select) return;
+
+select.innerHTML = "";
+
+times.forEach(time => {
+let option = document.createElement("option");
 option.value = time + ":00";
-option.text = `${hour}:${m} ${ampm}`;
-
+option.text = formatTime(time);
 select.appendChild(option);
 });
-});
+}
+
+// POPULATE ALL DROPDOWNS
+function populateDropdowns(){
+fillSelect(document.getElementById("startTime"), startTimes);
+fillSelect(document.getElementById("endTime"), endTimes);
+fillSelect(document.getElementById("eventStart"), startTimes);
+fillSelect(document.getElementById("eventEnd"), endTimes);
 }
 
 let confettiTriggered=false;
@@ -260,7 +245,7 @@ eventAdd:function(){checkCompletion();},
 eventChange:function(){checkCompletion();},
 
 eventClick:function(info){
-if(info.event.title.includes("Exam")){return;}
+if(info.event.title.includes("Exam")) return;
 if(confirm("Delete this event")){
 info.event.remove();
 }
@@ -272,7 +257,7 @@ calendar.render();
 
 });
 
-// BUTTON HANDLERS
+// BUTTONS
 document.getElementById("addClassBtn").onclick=function(){
 document.getElementById("classModal").style.display="flex";
 };
@@ -321,7 +306,6 @@ backgroundColor:'#8ECAE6'
 });
 
 closeModal();
-
 document.getElementById("className").value="";
 }
 
@@ -346,12 +330,11 @@ backgroundColor:'#52b788'
 });
 
 closeEventModal();
-
 document.getElementById("eventTitle").value="";
 document.getElementById("eventDate").value="";
 }
 
-// COMPLETION CHECK
+// FIXED COMPLETION FUNCTION
 function checkCompletion(){
 
 const events=calendar.getEvents();
@@ -400,6 +383,11 @@ origin:{y:0.6}
 }
 
 }
+
+</script>
+
+</body>
+</html>
 
 </script>
 
