@@ -105,7 +105,7 @@ background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:100
 
 </div>
 </div>
-let selectedSlotInfo = null;
+
 <!-- EVENT MODAL -->
 <div id="eventModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
 background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:1000;">
@@ -143,6 +143,10 @@ background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:100
 <div id="calendar"></div>
 
 <script>
+
+let selectedSlotInfo = null;
+
+// helper
 function overlapsExam(start,end){
 return calendar.getEvents().some(event=>{
 return event.extendedProps.isExam &&
@@ -212,17 +216,9 @@ extendedProps:{isExam:true}}
 
 select:function(info){
 
-// Prevent selecting over exams
-let overlapping = calendar.getEvents().some(event => {
-return event.title.includes("Exam") &&
-info.start < event.end &&
-info.end > event.start;
-});
-
 if(overlapsExam(info.start,info.end)){
 calendar.unselect();
 return;
-}
 }
 
 // Store selection
@@ -242,7 +238,7 @@ if(checkbox) checkbox.checked = true;
 document.getElementById("eventModal").style.display = "flex";
 
 calendar.unselect();
-},
+}
 
 });
 
@@ -256,6 +252,19 @@ document.getElementById("addEventBtn").onclick=()=>document.getElementById("even
 
 function closeModal(){document.getElementById("classModal").style.display="none";}
 function closeEventModal(){document.getElementById("eventModal").style.display="none";}
+
+// CLEAR FORMS
+function clearClassForm(){
+document.getElementById("className").value="";
+document.querySelectorAll('#classModal input[type="checkbox"]').forEach(cb=>cb.checked=false);
+}
+
+function clearEventForm(){
+document.getElementById("eventTitle").value="";
+document.getElementById("eventStart").value="";
+document.getElementById("eventEnd").value="";
+document.querySelectorAll('#eventModal input[type="checkbox"]').forEach(cb=>cb.checked=false);
+}
 
 // ADD CLASS
 function submitClass(){
@@ -290,10 +299,9 @@ backgroundColor:'#8ECAE6'
 
 closeModal();
 clearClassForm();
-document.getElementById("className").value="";
 }
 
-// ADD EVENT (NEW LOGIC)
+// ADD EVENT
 function submitEvent(){
 
 const title=document.getElementById("eventTitle").value;
@@ -312,7 +320,6 @@ const baseDate=new Date('2026-03-29');
 baseDate.setDate(baseDate.getDate()+parseInt(box.value));
 const dateStr=baseDate.toISOString().split('T')[0];
 
-// Prevent overlap with exams
 let newStart=new Date(dateStr+"T"+start);
 let newEnd=new Date(dateStr+"T"+end);
 
@@ -324,32 +331,13 @@ start:newStart,
 end:newEnd,
 backgroundColor:'#52b788'
 });
-
-calendar.addEvent({
-title:title,
-start:dateStr+"T"+start,
-end:dateStr+"T"+end,
-backgroundColor:'#52b788'
-});
 });
 
 closeEventModal();
 clearEventForm();
 selectedSlotInfo = null;
-document.getElementById("eventTitle").value="";
-selectedSlotInfo = null;
-}
-function clearClassForm(){
-document.getElementById("className").value="";
-document.querySelectorAll('#classModal input[type="checkbox"]').forEach(cb=>cb.checked=false);
 }
 
-function clearEventForm(){
-document.getElementById("eventTitle").value="";
-document.getElementById("eventStart").value="";
-document.getElementById("eventEnd").value="";
-document.querySelectorAll('#eventModal input[type="checkbox"]').forEach(cb=>cb.checked=false);
-}
 // COMPLETION CHECK
 function checkCompletion(){
 const events=calendar.getEvents();
