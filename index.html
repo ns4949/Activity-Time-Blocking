@@ -143,6 +143,13 @@ background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:100
 <div id="calendar"></div>
 
 <script>
+function overlapsExam(start,end){
+return calendar.getEvents().some(event=>{
+return event.extendedProps.isExam &&
+start < event.end &&
+end > event.start;
+});
+}
 
 // CLASS TIME BANKS
 const startTimes = ["07:25","08:30","09:35","10:40","11:45","12:50","13:55","15:00","16:05","17:10","18:15","19:20","20:20","21:20"];
@@ -194,8 +201,13 @@ editable:true,
 headerToolbar:{left:'',center:'title',right:''},
 
 events:[
-{title:'Exam 1',start:'2026-04-01T20:30:00',end:'2026-04-01T22:30:00',backgroundColor:'red',editable:false},
-{title:'Exam 2',start:'2026-04-03T11:30:00',end:'2026-04-03T13:30:00',backgroundColor:'red',editable:false}
+{title:'Exam 1',start:'2026-04-01T20:30:00',end:'2026-04-01T22:30:00',
+backgroundColor:'red',editable:false,overlap:false,
+extendedProps:{isExam:true}},
+
+{title:'Exam 2',start:'2026-04-03T11:30:00',end:'2026-04-03T13:30:00',
+backgroundColor:'red',editable:false,overlap:false,
+extendedProps:{isExam:true}}
 ],
 
 select:function(info){
@@ -207,10 +219,10 @@ info.start < event.end &&
 info.end > event.start;
 });
 
-if(overlapping){
-alert("Cannot create events during exam times.");
+if(overlapsExam(info.start,info.end)){
 calendar.unselect();
 return;
+}
 }
 
 // Store selection
@@ -263,10 +275,21 @@ const baseDate=new Date('2026-03-29');
 baseDate.setDate(baseDate.getDate()+parseInt(box.value));
 const dateStr=baseDate.toISOString().split('T')[0];
 
-calendar.addEvent({title:name,start:dateStr+"T"+startTime,end:dateStr+"T"+endTime,backgroundColor:'#8ECAE6'});
+let start=new Date(dateStr+"T"+startTime);
+let end=new Date(dateStr+"T"+endTime);
+
+if(overlapsExam(start,end)) return;
+
+calendar.addEvent({
+title:name,
+start:start,
+end:end,
+backgroundColor:'#8ECAE6'
+});
 });
 
 closeModal();
+clearClassForm();
 document.getElementById("className").value="";
 }
 
@@ -290,19 +313,17 @@ baseDate.setDate(baseDate.getDate()+parseInt(box.value));
 const dateStr=baseDate.toISOString().split('T')[0];
 
 // Prevent overlap with exams
-let newStart = new Date(dateStr+"T"+start);
-let newEnd = new Date(dateStr+"T"+end);
+let newStart=new Date(dateStr+"T"+start);
+let newEnd=new Date(dateStr+"T"+end);
 
-let overlapping = calendar.getEvents().some(event => {
-return event.title.includes("Exam") &&
-newStart < event.end &&
-newEnd > event.start;
+if(overlapsExam(newStart,newEnd)) return;
+
+calendar.addEvent({
+title:title,
+start:newStart,
+end:newEnd,
+backgroundColor:'#52b788'
 });
-
-if(overlapping){
-alert("Cannot create events during exam times.");
-return;
-}
 
 calendar.addEvent({
 title:title,
@@ -313,10 +334,22 @@ backgroundColor:'#52b788'
 });
 
 closeEventModal();
+clearEventForm();
+selectedSlotInfo = null;
 document.getElementById("eventTitle").value="";
 selectedSlotInfo = null;
 }
+function clearClassForm(){
+document.getElementById("className").value="";
+document.querySelectorAll('#classModal input[type="checkbox"]').forEach(cb=>cb.checked=false);
+}
 
+function clearEventForm(){
+document.getElementById("eventTitle").value="";
+document.getElementById("eventStart").value="";
+document.getElementById("eventEnd").value="";
+document.querySelectorAll('#eventModal input[type="checkbox"]').forEach(cb=>cb.checked=false);
+}
 // COMPLETION CHECK
 function checkCompletion(){
 const events=calendar.getEvents();
