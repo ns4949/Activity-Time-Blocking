@@ -17,17 +17,35 @@ html,body{
 overscroll-behavior:contain;
 touch-action:manipulation;
 }
+
 body{
 font-family:Arial;
 margin:20px;
 }
-h2{text-align:center;}
-.instructions{
-max-width:1000px;margin:0 auto 20px auto;padding:15px;
-background:#f5f5f5;border-radius:8px;
+
+h2{
+text-align:center;
+margin-bottom:10px;
 }
-#calendar{max-width:1100px;margin:0 auto;}
-button{cursor:pointer;}
+
+.instructions{
+max-width:1000px;
+margin:0 auto 20px auto;
+padding:15px;
+background:#f5f5f5;
+border-radius:8px;
+font-size:14px;
+line-height:1.6;
+}
+
+#calendar{
+max-width:1100px;
+margin:0 auto;
+}
+
+button{
+cursor:pointer;
+}
 </style>
 </head>
 
@@ -36,51 +54,89 @@ button{cursor:pointer;}
 <h2>Weekly Time Blocking Activity</h2>
 
 <div class="instructions">
-Build your schedule and include exams, homework, studying, mentees, and social events.
+<strong>You must use your current schedule & involvements and then incorporate the following:</strong><br><br>
+Reports due this Friday AND you still need to schedule individual meetings with your mentees.<br>
+2 exams — one Wednesday night, one Friday morning (you ideally need to study for 10 hours).<br>
+Invited to friend's birthday party on Friday night at 8:20 PM with sign reveal at 9:30 PM.<br>
+6 hours of Homework due Saturday night.<br>
+Situationship wants to meet up.
 </div>
 
 <div style="text-align:center;margin-bottom:15px;">
-<button id="addClassBtn">+ Add Class</button>
-<button id="addEventBtn">+ Add Event</button>
+
+<button id="addClassBtn" style="padding:10px 18px;font-size:16px;border-radius:8px;border:none;background:#2d6cdf;color:white;">
++ Add Class
+</button>
+
+<button id="addEventBtn" style="padding:10px 18px;font-size:16px;border-radius:8px;border:none;background:#52b788;color:white;margin-left:10px;">
++ Add Event
+</button>
+
 </div>
 
 <!-- CLASS MODAL -->
-<div id="classModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
-<div style="background:white;padding:20px;border-radius:10px;">
-<input id="className" placeholder="Class Name"><br><br>
+<div id="classModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:1000;">
 
+<div style="background:white;padding:20px;border-radius:10px;width:90%;max-width:400px;">
+
+<h3>Add Class</h3>
+
+<label>Class Name</label><br>
+<input type="text" id="className" style="width:100%;margin-bottom:10px;"><br>
+
+<label>Days</label><br>
 <label><input type="checkbox" value="1"> Mon</label>
 <label><input type="checkbox" value="2"> Tue</label>
 <label><input type="checkbox" value="3"> Wed</label>
 <label><input type="checkbox" value="4"> Thu</label>
-<label><input type="checkbox" value="5"> Fri</label><br><br>
+<label><input type="checkbox" value="5"> Fri</label>
 
+<br><br>
+
+<label>Start Time</label><br>
 <select id="startTime"></select><br><br>
+
+<label>End Time</label><br>
 <select id="endTime"></select><br><br>
 
-<button onclick="submitClass()">Add</button>
+<button onclick="submitClass()">Add Class</button>
 <button onclick="closeModal()">Cancel</button>
+
 </div>
 </div>
 
 <!-- EVENT MODAL -->
-<div id="eventModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
-<div style="background:white;padding:20px;border-radius:10px;">
-<input id="eventTitle" placeholder="Event"><br><br>
+<div id="eventModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:1000;">
 
+<div style="background:white;padding:20px;border-radius:10px;width:90%;max-width:400px;">
+
+<h3>Add Event</h3>
+
+<label>Event Title</label><br>
+<input type="text" id="eventTitle" style="width:100%;margin-bottom:10px;"><br>
+
+<label>Days</label><br>
 <label><input type="checkbox" value="0"> Sun</label>
 <label><input type="checkbox" value="1"> Mon</label>
 <label><input type="checkbox" value="2"> Tue</label>
 <label><input type="checkbox" value="3"> Wed</label>
 <label><input type="checkbox" value="4"> Thu</label>
 <label><input type="checkbox" value="5"> Fri</label>
-<label><input type="checkbox" value="6"> Sat</label><br><br>
+<label><input type="checkbox" value="6"> Sat</label>
 
+<br><br>
+
+<label>Start Time</label><br>
 <input type="time" id="eventStart"><br><br>
+
+<label>End Time</label><br>
 <input type="time" id="eventEnd"><br><br>
 
-<button onclick="submitEvent()">Add</button>
+<button onclick="submitEvent()">Add Event</button>
 <button onclick="closeEventModal()">Cancel</button>
+
 </div>
 </div>
 
@@ -88,134 +144,165 @@ Build your schedule and include exams, homework, studying, mentees, and social e
 
 <script>
 
-const startTimes=["07:25","08:30","09:35","10:40","11:45","12:50","13:55","15:00","16:05","17:10","18:15","19:20","20:20","21:20"];
-const endTimes=["08:15","09:20","10:25","11:30","12:35","13:40","14:45","15:50","16:55","18:00","19:05","20:10","21:10","22:10"];
+// CLASS TIME BANKS
+const startTimes = ["07:25","08:30","09:35","10:40","11:45","12:50","13:55","15:00","16:05","17:10","18:15","19:20","20:20","21:20"];
+const endTimes = ["08:15","09:20","10:25","11:30","12:35","13:40","14:45","15:50","16:55","18:00","19:05","20:10","21:10","22:10"];
 
-function fillSelect(el,times){
-el.innerHTML="";
-times.forEach(t=>{
-let o=document.createElement("option");
-o.value=t+":00";
-o.text=t;
-el.appendChild(o);
+function formatTime(time){
+let [h,m]=time.split(":");
+let hour=parseInt(h);
+let ampm=hour>=12?"PM":"AM";
+hour=hour%12||12;
+return `${hour}:${m} ${ampm}`;
+}
+
+function fillSelect(select,times){
+select.innerHTML="";
+times.forEach(time=>{
+let option=document.createElement("option");
+option.value=time+":00";
+option.text=formatTime(time);
+select.appendChild(option);
 });
 }
 
-function overlapsExam(start,end){
-return calendar.getEvents().some(e=>{
-if(!e.extendedProps.isExam) return false;
-return start<e.end && end>e.start;
-});
+function populateDropdowns(){
+fillSelect(document.getElementById("startTime"),startTimes);
+fillSelect(document.getElementById("endTime"),endTimes);
 }
 
-function resetForm(id){
-document.querySelectorAll(`#${id} input`).forEach(i=>{
-if(i.type==="checkbox") i.checked=false;
-else i.value="";
-});
-}
+let confettiTriggered=false;
 
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded',function(){
 
-fillSelect(startTime,startTimes);
-fillSelect(endTime,endTimes);
+populateDropdowns();
 
-window.calendar=new FullCalendar.Calendar(calendar,{
+var calendarEl=document.getElementById('calendar');
 
+window.calendar=new FullCalendar.Calendar(calendarEl,{
 initialView:'timeGridWeek',
+firstDay:0,
 initialDate:'2026-03-29',
+slotMinTime:"06:00:00",
+slotMaxTime:"23:59:00",
+slotDuration:"00:30:00",
+allDaySlot:false,
+height:"auto",
 selectable:true,
 editable:true,
 
+headerToolbar:{left:'',center:'title',right:''},
+
 events:[
-{
-title:'Exam 1',
-start:'2026-04-01T20:30:00',
-end:'2026-04-01T22:30:00',
-backgroundColor:'red',
-editable:false,
-startEditable:false,
-durationEditable:false,
-resourceEditable:false,
-extendedProps:{isExam:true}
-},
-{
-title:'Exam 2',
-start:'2026-04-03T11:30:00',
-end:'2026-04-03T13:30:00',
-backgroundColor:'red',
-editable:false,
-startEditable:false,
-durationEditable:false,
-resourceEditable:false,
-extendedProps:{isExam:true}
-}
+{title:'Exam 1',start:'2026-04-01T20:30:00',end:'2026-04-01T22:30:00',backgroundColor:'red',editable:false},
+{title:'Exam 2',start:'2026-04-03T11:30:00',end:'2026-04-03T13:30:00',backgroundColor:'red',editable:false}
 ],
 
-select(info){
-if(overlapsExam(info.start,info.end)) return;
-
-let title=prompt("Event?");
+select:function(info){
+var title=prompt("Enter event name:");
 if(title){
-calendar.addEvent({title,start:info.start,end:info.end});
+calendar.addEvent({title:title,start:info.start,end:info.end,backgroundColor:'#A7C957'});
+checkCompletion();
 }
+calendar.unselect();
 },
 
-eventClick(info){
-if(info.event.extendedProps.isExam) return;
-if(confirm("Delete?")) info.event.remove();
+eventAdd:function(){checkCompletion();},
+eventChange:function(){checkCompletion();},
+
+eventClick:function(info){
+if(info.event.title.includes("Exam")) return;
+if(confirm("Delete this event")) info.event.remove();
 }
 
 });
 
 calendar.render();
+
 });
 
-addClassBtn.onclick=()=>classModal.style.display="flex";
-addEventBtn.onclick=()=>eventModal.style.display="flex";
+// BUTTONS
+document.getElementById("addClassBtn").onclick=()=>document.getElementById("classModal").style.display="flex";
+document.getElementById("addEventBtn").onclick=()=>document.getElementById("eventModal").style.display="flex";
 
-function closeModal(){classModal.style.display="none";}
-function closeEventModal(){eventModal.style.display="none";}
+function closeModal(){document.getElementById("classModal").style.display="none";}
+function closeEventModal(){document.getElementById("eventModal").style.display="none";}
 
+// ADD CLASS
 function submitClass(){
-let name=className.value;
-let days=document.querySelectorAll('#classModal input:checked');
+const name=document.getElementById("className").value;
+const startTime=document.getElementById("startTime").value;
+const endTime=document.getElementById("endTime").value;
 
-days.forEach(d=>{
-let base=new Date('2026-03-29');
-base.setDate(base.getDate()+parseInt(d.value));
-let date=base.toISOString().split('T')[0];
+const days=document.querySelectorAll('#classModal input[type="checkbox"]:checked');
 
-calendar.addEvent({
-title:name,
-start:date+"T"+startTime.value,
-end:date+"T"+endTime.value
-});
-});
-
-resetForm("classModal");
-closeModal();
+if(!name||!startTime||!endTime||days.length===0){
+alert("Fill all fields");
+return;
 }
 
-function submitEvent(){
-let title=eventTitle.value;
-let days=document.querySelectorAll('#eventModal input:checked');
+days.forEach(box=>{
+const baseDate=new Date('2026-03-29');
+baseDate.setDate(baseDate.getDate()+parseInt(box.value));
+const dateStr=baseDate.toISOString().split('T')[0];
 
-days.forEach(d=>{
-let base=new Date('2026-03-29');
-base.setDate(base.getDate()+parseInt(d.value));
-let date=base.toISOString().split('T')[0];
-
-let s=new Date(date+"T"+eventStart.value);
-let e=new Date(date+"T"+eventEnd.value);
-
-if(overlapsExam(s,e)) return;
-
-calendar.addEvent({title,start:s,end:e});
+calendar.addEvent({title:name,start:dateStr+"T"+startTime,end:dateStr+"T"+endTime,backgroundColor:'#8ECAE6'});
 });
 
-resetForm("eventModal");
+closeModal();
+document.getElementById("className").value="";
+}
+
+// ADD EVENT (NEW LOGIC)
+function submitEvent(){
+
+const title=document.getElementById("eventTitle").value;
+const start=document.getElementById("eventStart").value;
+const end=document.getElementById("eventEnd").value;
+
+const days=document.querySelectorAll('#eventModal input[type="checkbox"]:checked');
+
+if(!title||!start||!end||days.length===0){
+alert("Fill all fields");
+return;
+}
+
+days.forEach(box=>{
+const baseDate=new Date('2026-03-29');
+baseDate.setDate(baseDate.getDate()+parseInt(box.value));
+const dateStr=baseDate.toISOString().split('T')[0];
+
+calendar.addEvent({
+title:title,
+start:dateStr+"T"+start,
+end:dateStr+"T"+end,
+backgroundColor:'#52b788'
+});
+});
+
 closeEventModal();
+document.getElementById("eventTitle").value="";
+}
+
+// COMPLETION CHECK
+function checkCompletion(){
+const events=calendar.getEvents();
+
+let hasBirthday=false,menteeCount=0,totalHomeworkMinutes=0,totalStudyMinutes=0,hasSituationship=false;
+
+events.forEach(event=>{
+const title=event.title.toLowerCase();
+if(title.includes("birthday")||title.includes("party")) hasBirthday=true;
+if(title.includes("mentee")) menteeCount++;
+if(title.includes("homework")||title.includes("hw")) totalHomeworkMinutes+=(event.end-event.start)/(1000*60);
+if(title.includes("study")) totalStudyMinutes+=(event.end-event.start)/(1000*60);
+if(title.includes("situationship")||title.includes("link")) hasSituationship=true;
+});
+
+if(hasBirthday&&totalHomeworkMinutes>=360&&totalStudyMinutes>=600&&menteeCount>=2&&hasSituationship&&!confettiTriggered){
+confettiTriggered=true;
+confetti({particleCount:200,spread:100,origin:{y:0.6}});
+}
 }
 
 </script>
