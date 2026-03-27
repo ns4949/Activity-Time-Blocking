@@ -55,7 +55,7 @@ cursor:pointer;
 
 <div class="instructions">
 <strong>You must use your current schedule & involvements and then incorporate the following:</strong><br><br>
-Reports due this Friday AND you still need to schedule individual meetings with your mentees.<br>
+Reports due this Friday AND you still need to schedule individual meetings with your 4 mentees.<br>
 2 exams — one Wednesday night, one Friday morning (you ideally need to study for 10 hours).<br>
 Invited to friend's birthday party on Friday night at 8:20 PM with sign reveal at 9:30 PM.<br>
 6 hours of Homework due Saturday night.<br>
@@ -238,7 +238,10 @@ if(checkbox) checkbox.checked = true;
 document.getElementById("eventModal").style.display = "flex";
 
 calendar.unselect();
-}
+},
+
+eventAdd:function(){checkCompletion();},
+eventChange:function(){checkCompletion();},
 
 });
 
@@ -353,8 +356,7 @@ if(title.includes("study")) totalStudyMinutes+=(event.end-event.start)/(1000*60)
 if(title.includes("situationship")||title.includes("link")) hasSituationship=true;
 });
 
-if(hasBirthday&&totalHomeworkMinutes>=360&&totalStudyMinutes>=600&&menteeCount>=2&&hasSituationship&&!confettiTriggered){
-confettiTriggered=true;
+if(hasBirthday&&totalHomeworkMinutes>=360&&totalStudyMinutes>=600&&menteeCount===4&&hasSituationship&&!confettiTriggered){;
 confetti({particleCount:200,spread:100,origin:{y:0.6}});
 }
 }
